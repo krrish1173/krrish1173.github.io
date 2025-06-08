@@ -1,36 +1,226 @@
-<!doctype html>
-
-<!-- this is a comment for human! -->
-
+<!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            background-image: url('https://th.bing.com/th/id/OIP.M25IGwmqc4OLbT2HNM4C_AHaE8?w=266&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .content-wrapper {
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .room {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        .occupied {
+            background-color: rgb(246, 170, 170);
+        }
+        .vacant {
+            background-color: rgba(146, 248, 146, 0.8);
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #313194;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #3d3d3d;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(240, 240, 240, 0.8);
+            border-radius: 5px;
+        }
 
-  <header>
-    <title>harrison kong's resume</title>
-    <link rel="styelsheet" href="css/master.css">
-    <link rel="faviconicon" href="favicon.ico" type="image/x-icon">
-    <link rel="shotcut" href+"fevicon.ico" type="image/x-icon">
-    <meta name="viewport" content="width-device-width,initial-scale=1,shrink-to-fit-no">
-    <meta name="name" content="Harrison kong portal">
-    <meta name="robots" content="noindex,nofollow">
-  </header>
-  <body>
-    <img src="images/banner.jpg" width="75%" alt="banner">
-    <h1>krrish is my website</h1>
-    <h2>about me </h2>
-    <p>iam a website developer in india .</p>
-    <p>im in graphic era university which is in dehradun .</p>
-    <p>i have persued bca in and iam in my fiest year. </p>
-    <h2>Credentials and Portfolio</h2>
+        #rights {
+            font-size: small;
+        }
+  
+        .semaphore-display {
+            position: absolute;
+            top: 181px;
+            right: 63px;
+            padding: 10px;
+            background-color: rgba(238, 238, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .semaphore-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <h1>Hotel Management System</h1>
+        
+        <div class="semaphore-display">
+            <h3>Room Availability</h3>
+            <div>Total Rooms: <span id="totalRooms" class="semaphore-value">0</span></div>
+            <div>Vacant Rooms: <span id="vacantRooms" class="semaphore-value">0</span></div>
+        </div>
 
-    <p><a href="resume.html">My Resume</a> | <a href="https://github.com/krrish1173">My GitHub</a></p>
-    <h2>Contact</h2>
+        <div class="controls">
+            <div>
+                <h3>Book Room</h3>
+                <select id="roomSelect">
+                    <option value="">Select a room</option>
+                </select>
+                <input type="text" id="guestName" placeholder="Guest name">
+                <button id="bookBtn">Book Room</button>
+            </div>
+            <div>
+                <h3>Check Out</h3>
+                <select id="occupiedSelect">
+                    <option value="">Select a room</option>
+                </select>
+                <button id="checkoutBtn">Check Out</button>
+            </div>
+        </div>
 
-    <p>Email: <a href="mailto:krrishgurung1610@gmail.com">krrishgurung1610@gmail.com</a></p>
-  </body>
+        <h2>Room Status</h2>
+        <div id="roomStatus">
+            <!-- Room status will be displayed here -->
+        </div>
+        <p id="rights">&copy; 2025 by krrish.gaurav.anirudh.all rights reserved.</p>
+    </div>
+    <script>
+        // Mock data - in real system this would come from your C backend
+        const rooms = [
+            { number: 101, occupied: true, guest: "" },
+            { number: 102, occupied: true, guest: "" },
+            { number: 103, occupied: true, guest: "" },
+            { number: 104, occupied: true, guest: "" },
+            { number: 105, occupied: true, guest: "" }
+        ];
 
-  <footer>
-    <hr>
-    <code>Copyright (C) 2020 krrish gurung </code>
-  </footer>
+        function updateSemaphoreDisplay() {
+            const total = rooms.length;
+            const vacant = rooms.filter(r => !r.occupied).length;
+            
+            document.getElementById('totalRooms').textContent = total;
+            document.getElementById('vacantRooms').textContent = vacant;
+        }
 
+        function refreshRoomDisplay() {
+            const roomStatusDiv = document.getElementById('roomStatus');
+            roomStatusDiv.innerHTML = '';
+            
+            const roomSelect = document.getElementById('roomSelect');
+            const occupiedSelect = document.getElementById('occupiedSelect');
+            
+            // Clear selects but keep the first option
+            roomSelect.innerHTML = '<option value="">Select a room</option>';
+            occupiedSelect.innerHTML = '<option value="">Select a room</option>';
+            
+            rooms.forEach(room => {
+                // Create room display
+                const roomDiv = document.createElement('div');
+                roomDiv.className = `room ${room.occupied ? 'occupied' : 'vacant'}`;
+                roomDiv.innerHTML = `
+                    <div>
+                        <strong>Room ${room.number}</strong><br>
+                        Status: ${room.occupied ? 'Occupied' : 'Vacant'}<br>
+                        ${room.occupied ? `Guest: ${room.guest}` : ''}
+                    </div>
+                `;
+                roomStatusDiv.appendChild(roomDiv);
+                
+                // Populate room select - all rooms enabled
+                const roomOption = document.createElement('option');
+                roomOption.value = room.number;
+                roomOption.textContent = `Room ${room.number}`;
+                roomSelect.appendChild(roomOption);
+                
+                // Populate occupied select - all rooms enabled (same as booking dropdown)
+                const occupiedOption = document.createElement('option');
+                occupiedOption.value = room.number;
+                occupiedOption.textContent = `Room ${room.number}`;
+                occupiedSelect.appendChild(occupiedOption);
+            });
+            
+            updateSemaphoreDisplay();
+        }
+
+        function bookRoom() {
+            const roomNumber = parseInt(document.getElementById('roomSelect').value);
+            const guestName = document.getElementById('guestName').value.trim();
+            
+            if (!roomNumber || !guestName) {
+                alert('Please select a room and enter guest name');
+                return;
+            }
+            
+            const room = rooms.find(r => r.number === roomNumber);
+            
+            if (room && !room.occupied) {
+                room.occupied = true;
+                room.guest = guestName;
+                refreshRoomDisplay();
+                document.getElementById('guestName').value = '';
+            } else {
+                alert('Room is already occupied!');
+            }
+        }
+
+        function checkOut() {
+            const roomNumber = parseInt(document.getElementById('occupiedSelect').value);
+            
+            if (!roomNumber) {
+                alert('Please select a room to check out');
+                return;
+            }
+            
+            const room = rooms.find(r => r.number === roomNumber);
+            
+            if (room && room.occupied) {
+                room.occupied = false;
+                room.guest = "";
+                refreshRoomDisplay();
+            } else {
+                alert('Room is not occupied!');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('bookBtn').addEventListener('click', bookRoom);
+        document.getElementById('checkoutBtn').addEventListener('click', checkOut);
+
+        // Initialize
+        refreshRoomDisplay();
+    </script>
+</body>
 </html>
